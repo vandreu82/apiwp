@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+
+  h1 {
+    color: #333;
+  }
+
+  form {
+    max-width: 500px;
+  }
+
+  label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+  }
+
+  input,
+  textarea,
+  button {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+</style>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publicar en WordPress</title>
+  <script>
+    async function publicar() {
+      const titulo = document.getElementById('titulo').value;
+      const contenido = document.getElementById('contenido').value;
+
+      if (!titulo || !contenido) {
+        alert('Por favor, completa ambos campos.');
+        return;
+      }
+
+      try {
+        const respuesta = await fetch('api.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ titulo, contenido })
+        });
+
+        const resultado = await respuesta.json();
+
+        if (respuesta.ok) {
+          alert('¡Publicación creada con éxito!');
+        } else {
+          alert('Error al publicar: ' + resultado.mensaje);
+        }
+      } catch (error) {
+        alert('Error al conectar con la API: ' + error.message);
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <h1>Publicar en WordPress</h1>
+  <form onsubmit="event.preventDefault(); publicar();">
+    <label for="titulo">Título:</label><br>
+    <input type="text" id="titulo" name="titulo" required><br><br>
+    <label for="contenido">Contenido:</label><br>
+    <textarea id="contenido" name="contenido" rows="5" required></textarea><br><br>
+    <button type="submit">Publicar</button>
+  </form>
+</body>
+
+</html>
