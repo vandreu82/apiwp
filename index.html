@@ -1,51 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-  }
-
-  h1 {
-    color: #333;
-  }
-
-  form {
-    max-width: 500px;
-  }
-
-  label {
-    font-weight: bold;
-    margin-top: 10px;
-    display: block;
-  }
-
-  input,
-  textarea,
-  button {
-    width: 100%;
-    margin: 5px 0;
-    padding: 10px;
-    font-size: 16px;
-  }
-
-  button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-
-  button:hover {
-    background-color: #0056b3;
-  }
-</style>
+<html lang="es">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Publicar en WordPress</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .column {
+      flex: 1;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input,
+    textarea,
+    button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #resultado-manual,
+    #resultado-tiempo {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
   <script>
     async function publicar() {
       const titulo = document.getElementById('titulo').value;
@@ -66,28 +82,62 @@
         });
 
         const resultado = await respuesta.json();
-
-        if (respuesta.ok) {
-          alert('¡Publicación creada con éxito!');
-        } else {
-          alert('Error al publicar: ' + resultado.mensaje);
-        }
+        document.getElementById('resultado-manual').textContent =
+          resultado.mensaje || 'Error al publicar manualmente.';
       } catch (error) {
         alert('Error al conectar con la API: ' + error.message);
       }
     }
+
+    async function publicarTiempo() {
+        try {
+          const respuesta = await fetch('controller.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!respuesta.ok) {
+            const errorData = await respuesta.json();
+            alert('Error en la API: ' + errorData.mensaje);
+            return;
+          }
+
+          const resultado = await respuesta.json();
+          document.getElementById('resultado-tiempo').textContent =
+            resultado.mensaje || 'Error al publicar la información del tiempo.';
+        } catch (error) {
+          alert('Error al conectar con la API: ' + error.message);
+        }
+      }
+
   </script>
 </head>
 
 <body>
   <h1>Publicar en WordPress</h1>
-  <form onsubmit="event.preventDefault(); publicar();">
-    <label for="titulo">Título:</label><br>
-    <input type="text" id="titulo" name="titulo" required><br><br>
-    <label for="contenido">Contenido:</label><br>
-    <textarea id="contenido" name="contenido" rows="5" required></textarea><br><br>
-    <button type="submit">Publicar</button>
-  </form>
+  <div class="container">
+    <!-- Columna izquierda: Publicación manual -->
+    <div class="column">
+      <h2>Publicar Manualmente</h2>
+      <form onsubmit="event.preventDefault(); publicar();">
+        <label for="titulo">Título:</label><br>
+        <input type="text" id="titulo" name="titulo" required><br><br>
+        <label for="contenido">Contenido:</label><br>
+        <textarea id="contenido" name="contenido" rows="5" required></textarea><br><br>
+        <button type="submit">Publicar Manualmente</button>
+      </form>
+      <div id="resultado-manual"></div>
+    </div>
+
+    <!-- Columna derecha: Publicación del tiempo -->
+    <div class="column">
+      <h2>Publicar Información del Tiempo</h2>
+      <button onclick="publicarTiempo()">Publicar Información del Tiempo</button>
+      <div id="resultado-tiempo"></div>
+    </div>
+  </div>
 </body>
 
 </html>
